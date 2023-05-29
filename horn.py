@@ -2,28 +2,19 @@
 
 import itertools
 
-from base import HornClause, HornFormula, Example, true, false, intersect, covers, violates
-
-def gen_clauses(examples: list[Example]) -> list[HornClause]:
-    clauses = []
-    for e in examples:
-        t = list(true(e))
-        for f in false(e):
-            clauses.append(HornClause(t, f))
-        clauses.append(HornClause(t, ""))
-    return clauses
+from base import HornClause, HornFormula, Example, true, false, intersect, covers, violates, gen_clauses
 
 def horn(target: HornFormula) -> HornFormula:
     S = []
     H = HornFormula([])
     while(True):
-        equal, counter = target.equivalent(H)
+        equal, counter = target.is_equivalent(H)
         print(f"Current hypothesis: {H}")
         if equal:
             print("Success!!!")
             return H
         else:
-            if not H.evaluate(counter): # is a positive counterexample
+            if not H.is_member(counter): # is a positive counterexample
                 print(f"Positive counterexample: {counter}")
                 H.clauses = list(itertools.filterfalse(lambda c: violates(counter, c), H.clauses)) # remove from H every clause that x violates
                 print("Eliminating incorrect clauses...")
@@ -31,11 +22,11 @@ def horn(target: HornFormula) -> HornFormula:
                 print(f"Negative counterexample: {counter}")
                 refined = False
                 for i, s in enumerate(S):
-                    inter = intersect(s, counter)
-                    if true(inter).issubset(true(s)):
-                        if not target.evaluate(inter):
+                    intersected = intersect(s, counter)
+                    if true(intersected).issubset(true(s)):
+                        if not target.is_member(intersected):
                             print("Refining...")
-                            S[i] = inter # refine with the intersection
+                            S[i] = intersected # refine with the intersection
                             refined = True
                 if not refined:
                     print("Adding...")

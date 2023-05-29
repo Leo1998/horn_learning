@@ -1,4 +1,5 @@
 import math
+
 from typing import Self
 from typing import Union
 from typing import Optional
@@ -20,7 +21,7 @@ class HornClause:
             s = "∧".join(sorted(list(self.antecedent)))
         return f"({s} → {BOTTOM if not self.consequent else self.consequent})"
     
-    def evaluate(self, e: Example) -> bool:
+    def is_member(self, e: Example) -> bool:
         for a in self.antecedent:
             if not e[a]:
                 return True
@@ -52,22 +53,22 @@ class HornFormula:
             result[v] = s[i] == "1"
         return result
 
-    def evaluate(self, e: Union[str, Example]) -> bool:
+    def is_member(self, e: Union[str, Example]) -> bool:
         if type(e) is str:
             e = self.make_example(e)
         for c in self.clauses:
-            r = c.evaluate(e)
+            r = c.is_member(e)
             if not r:
                 return False
         return True
 
     # TODO: replace with proper implementation! (currently just brute-forces all possible assignments)
-    def equivalent(self, f: Self) -> tuple[bool, Optional[Example]]:
+    def is_equivalent(self, f: Self) -> tuple[bool, Optional[Example]]:
         vars = self.vars()
         for i in range(math.floor(math.pow(2, len(vars)))):
-            e = self.make_example(bin(i)[2:].zfill(len(vars)))
+            e = self.make_example(bin(i)[2:].zfill(len(vars))) # hacky way to generate all possibilities
 
-            if self.evaluate(e) != f.evaluate(e):
+            if self.is_member(e) != f.is_member(e):
                 return False, e
         return True, None
 
@@ -102,3 +103,12 @@ def violates(e: Example, c: HornClause) -> bool:
         return True
     else:
         return not e[c.consequent]
+
+def gen_clauses(examples: list[Example]) -> list[HornClause]:
+    clauses = []
+    for e in examples:
+        t = list(true(e))
+        for f in false(e):
+            clauses.append(HornClause(t, f))
+        clauses.append(HornClause(t, ""))
+    return clauses
