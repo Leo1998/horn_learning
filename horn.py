@@ -32,6 +32,7 @@ def horn(target: HornFormula) -> HornFormula:
                     print("Adding...")
                     S.append(counter)
                 H.clauses = gen_clauses(S) # regenerate H
+            print("") # newline
 
 
 if __name__ == "__main__":
@@ -39,9 +40,9 @@ if __name__ == "__main__":
     testClause2 = HornClause(["a", "b"], "c")
     testFormula = HornFormula([testClause1, testClause2])
 
-    print(f"Target formula: {testFormula}")
+    print(f"Target formula: {testFormula}\n")
 
-    print(f"Horn algorithm result: {horn(testFormula)}")
+    horn(testFormula)
 
     #print(testFormula.evaluate("1110"))
     #print(testFormula.equivalent(HornFormula([testClause1])))
