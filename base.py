@@ -1,8 +1,6 @@
 import math
 
-from typing import Self
-from typing import Union
-from typing import Optional
+from typing import Self, Union, Optional
 
 TOP = "1"
 BOTTOM = "0"
@@ -10,7 +8,7 @@ BOTTOM = "0"
 Example = dict[str, bool]
 
 class HornClause:
-    def __init__(self, antecedent: list[str], consequent: str):
+    def __init__(self, antecedent: list[str], consequent: Optional[str]):
         self.antecedent = antecedent
         self.consequent = consequent
 
@@ -19,13 +17,13 @@ class HornClause:
             s = TOP
         else:
             s = "∧".join(sorted(list(self.antecedent)))
-        return f"({s} → {BOTTOM if not self.consequent else self.consequent})"
+        return f"({s} → {BOTTOM if self.consequent is None else self.consequent})"
     
     def is_member(self, e: Example) -> bool:
         for a in self.antecedent:
             if not e[a]:
                 return True
-        if not self.consequent:
+        if self.consequent is None:
             return False
         else:
             return e[self.consequent]
@@ -42,7 +40,8 @@ class HornFormula:
         v = set()
         for c in self.clauses:
             v.update(c.antecedent)
-            v.add(c.consequent)
+            if c.consequent is not None:
+                v.add(c.consequent)
         return sorted(list(v))
 
     def make_example(self, s: str) -> Example:
@@ -99,7 +98,7 @@ def covers(e: Example, c: HornClause) -> bool:
 def violates(e: Example, c: HornClause) -> bool:
     if not covers(e, c):
         return False
-    if c.consequent == "":
+    if c.consequent is None:
         return True
     else:
         return not e[c.consequent]
@@ -110,5 +109,5 @@ def gen_clauses(examples: list[Example]) -> list[HornClause]:
         t = list(true(e))
         for f in false(e):
             clauses.append(HornClause(t, f))
-        clauses.append(HornClause(t, ""))
+        clauses.append(HornClause(t, None))
     return clauses
