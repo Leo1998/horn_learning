@@ -201,11 +201,25 @@ def violates_meta(e: Example, c: HornMetaClause) -> bool:
                 return True
         return False
 
-'''def gen_clauses_meta(examples: list[Example]) -> list[HornMetaClause]:
-    clauses = []
-    for e in examples:
-        t = list(true(e))
-        for f in false(e):
-            clauses.append(HornMetaClause(t, f))
-        clauses.append(HornMetaClause(t, None))
-    return clauses'''
+def negex_meta(c: HornMetaClause, vars: list[str]) -> Example:
+    result = dict()
+    for v in vars:
+        result[v] = v in c.antecedent
+    return result
+
+def new_meta(e: Example) -> HornMetaClause:
+    return HornMetaClause(true(e), [])
+
+def reduce_meta(e: Example, c: HornMetaClause, negexC: Example) -> bool:
+    if len(c.consequent) == 0:
+        c.consequent = true(e).intersection(false(negexC))
+    else:
+        c.consequent = true(e).intersection(c.consequent)
+
+def refine_meta(e: Example, c: HornMetaClause, negexC: Example) -> bool:
+    consequent = []
+    if len(c.consequent) > 0:
+        consequent.extend(c.consequent)
+        consequent.extend(false(e).intersection(true(negexC)))
+    c.antecedent = true(e)
+    c.consequent = consequent

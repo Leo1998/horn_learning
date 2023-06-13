@@ -2,10 +2,9 @@
 
 import itertools
 
-from base import HornMetaClause, HornMetaFormula, Example, true, false, intersect, covers_meta, violates_meta
+from base import HornMetaClause, HornMetaFormula, Example, true, false, intersect, covers_meta, violates_meta, negex_meta, new_meta, reduce_meta, refine_meta
 
 def horn1(target: HornMetaFormula) -> HornMetaFormula:
-    S = []
     H = HornMetaFormula([])
     while(True):
         equal, counter = target.is_equivalent(H)
@@ -16,22 +15,24 @@ def horn1(target: HornMetaFormula) -> HornMetaFormula:
         else:
             if not H.is_member(counter): # is a positive counterexample
                 print(f"Positive counterexample: {counter}")
-                # TODO
+                for c in H.clauses:
+                    if violates_meta(counter, c):
+                        reduce_meta(counter, c, negex_meta(c, target.vars()))
                 print("Eliminating incorrect clauses...")
             else: # is a negative counterexample
                 print(f"Negative counterexample: {counter}")
-                '''refined = False
-                for i, s in enumerate(S):
-                    intersected = intersect(s, counter)
-                    if true(intersected).issubset(true(s)):
+                refined = False
+                for c in H.clauses:
+                    negex = negex_meta(c, target.vars())
+                    intersected = intersect(negex, counter)
+                    if true(intersected).issubset(true(negex)):
                         if not target.is_member(intersected):
                             print("Refining...")
-                            S[i] = intersected # refine with the intersection
-                            refined = True
+                            refine_meta(intersected, c, negex) # refine with the intersection
+                            refined = True # TODO: should we break the loop here
                 if not refined:
                     print("Adding...")
-                    S.append(counter)
-                H.clauses = gen_clauses(S) # regenerate H'''
+                    H.clauses.append(new_meta(counter))
             print("") # newline
 
 
