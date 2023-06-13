@@ -28,6 +28,7 @@ def horn(target: HornFormula) -> HornFormula:
                             print("Refining...")
                             S[i] = intersected # refine with the intersection
                             refined = True
+                            break
                 if not refined:
                     print("Adding...")
                     S.append(counter)

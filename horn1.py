@@ -29,7 +29,8 @@ def horn1(target: HornMetaFormula) -> HornMetaFormula:
                         if not target.is_member(intersected):
                             print("Refining...")
                             refine_meta(intersected, c, negex) # refine with the intersection
-                            refined = True # TODO: should we break the loop here
+                            refined = True
+                            break
                 if not refined:
                     print("Adding...")
                     H.clauses.append(new_meta(counter))
