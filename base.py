@@ -89,7 +89,7 @@ class HornFormula:
     # TODO: replace with proper implementation! (currently just brute-forces all possible assignments)
     def is_equivalent(self, f: Self) -> tuple[bool, Optional[Example]]:
         vars = self.vars()
-        for i in range(math.floor(math.pow(2, len(vars)))):
+        for i in reversed(range(math.floor(math.pow(2, len(vars))))):
             e = self.make_example(bin(i)[2:].zfill(len(vars))) # hacky way to generate all possibilities
 
             if self.is_member(e) != f.is_member(e):
@@ -180,7 +180,7 @@ class HornMetaFormula:
     # TODO: replace with proper implementation! (currently just brute-forces all possible assignments)
     def is_equivalent(self, f: Self) -> tuple[bool, Optional[Example]]:
         vars = self.vars()
-        for i in range(math.floor(math.pow(2, len(vars)))):
+        for i in reversed(range(math.floor(math.pow(2, len(vars))))):
             e = self.make_example(bin(i)[2:].zfill(len(vars))) # hacky way to generate all possibilities
 
             if self.is_member(e) != f.is_member(e):
